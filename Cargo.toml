@@ -1,0 +1,11 @@
+[package]
+name = "polkadot-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = "3.0"
+
+[[bin]]
+name = "cli"
+path = "src/main.rs"
