@@ -6,6 +6,7 @@ use clap::{App, Arg, SubCommand};
 mod solochain;
 mod zombienet;
 mod omni_node;
+mod polkadot_sdk;
 
 
 fn main() {
@@ -25,7 +26,6 @@ fn main() {
     //         println!("Application error: {}", e);
     //         process::exit(1);
     //     }
-
 
     let matches = App::new("polkadot-cli")
         .version("1.0")
@@ -49,7 +49,13 @@ fn main() {
         )
         .subcommand(
             SubCommand::with_name("install")
-                .about("Installs all chains")
+                .about("Installs the polkadot-sdk")
+                .arg(
+                    Arg::with_name("CHAIN")
+                        .help("The name of the chain to install")
+                        .required(false)
+                        .index(1),
+                )
         )
         .subcommand(
             SubCommand::with_name("run")
@@ -93,13 +99,26 @@ fn main() {
                 }
             }
         }
-    } else if let Some(_) = matches.subcommand_matches("install") {
-        // Call the add functions for each chain
-        solochain::add("default");
-        zombienet::add("default");
-        omni_node::add("default");
-        println!("All chains installed.");
-        process::exit(0);
+    } else if let Some(matches) = matches.subcommand_matches("install") {
+        if let Some(chain) = matches.value_of("CHAIN") {
+            match chain {
+                "polkadot-sdk" => {
+                    polkadot_sdk::install("default");
+                    process::exit(0);
+                }
+                _ => {
+                    println!("Unknown chain: {}", chain);
+                    process::exit(1);
+                }
+            }
+        } else {
+            // Call the add functions for each chain
+            solochain::add("default");
+            zombienet::add("default");
+            omni_node::add("default");
+            println!("All chains installed.");
+            process::exit(0);
+        }
     } else if let Some(matches) = matches.subcommand_matches("run") {
         if let Some(chain) = matches.value_of("CHAIN") {
             match chain {
