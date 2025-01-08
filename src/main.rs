@@ -1,31 +1,13 @@
-// use std::env;
-// use std::fs;
 use std::process;
 use clap::{App, Arg, SubCommand};
 
-mod solochain;
 mod zombienet;
 mod omni_node;
 mod polkadot_sdk;
+mod template;
 
 
 fn main() {
-
-    // GETTING ARGUMENTS FROM COMMAND LINE AND READ FILE CONTENTS
-    //     let args: Vec<String> = std::env::args().collect();
-    //     // println!("{:?}", args);
-    //     let config: Config = Config::new(&args).unwrap_or_else(|err| {
-    //         println!("Problem parsing arguments: {}", err);
-    //         process::exit(1);
-    //     });
-
-    //     println!("Searching for {}", config.query);
-    //     println!("In file {}", config.filename);
-
-    //     if let Err(e) = polkadot_cli::run(config) {
-    //         println!("Application error: {}", e);
-    //         process::exit(1);
-    //     }
 
     let matches = App::new("polkadot-cli")
         .version("1.0")
@@ -52,7 +34,7 @@ fn main() {
                 .about("Installs the polkadot-sdk")
                 .arg(
                     Arg::with_name("CHAIN")
-                        .help("The name of the chain to install")
+                        .help("The name of the component to install")
                         .required(false)
                         .index(1),
                 )
@@ -78,11 +60,6 @@ fn main() {
     if let Some(matches) = matches.subcommand_matches("add") {
         if let Some(chain) = matches.value_of("CHAIN") {
             match chain {
-                "solochain" => {
-                    let template = matches.value_of("template").unwrap_or("default");
-                    solochain::add(template);
-                    process::exit(0);
-                }
                 "zombienet" => {
                     let template = matches.value_of("template").unwrap_or("default");
                     zombienet::add(template);
@@ -99,32 +76,18 @@ fn main() {
                 }
             }
         }
-    } else if let Some(matches) = matches.subcommand_matches("install") {
-        if let Some(chain) = matches.value_of("CHAIN") {
-            match chain {
-                "polkadot-sdk" => {
-                    polkadot_sdk::install("default");
-                    process::exit(0);
-                }
-                _ => {
-                    println!("Unknown chain: {}", chain);
-                    process::exit(1);
-                }
-            }
-        } else {
-            // Call the add functions for each chain
-            solochain::add("default");
-            zombienet::add("default");
-            omni_node::add("default");
-            println!("All chains installed.");
-            process::exit(0);
-        }
+    } else if let Some(_matches) = matches.subcommand_matches("install") {
+        polkadot_sdk::clone("default");
+        polkadot_sdk::install("curl");
+        println!("Polkadot-sdk installed.");
+        process::exit(0);
     } else if let Some(matches) = matches.subcommand_matches("run") {
         if let Some(chain) = matches.value_of("CHAIN") {
+            println!("Running chain: {}", chain);
             match chain {
-                "solochain" => {
+                "minimal" | "parachain" | "solochain" => {
                     let args: Vec<&str> = matches.values_of("ARGS").unwrap_or_default().collect();
-                    solochain::run(&args);
+                    template::run_template(&args, chain);
                     process::exit(0);
                 }
                 "zombienet" => {
@@ -135,6 +98,11 @@ fn main() {
                 "omni-node" => {
                     let args: Vec<&str> = matches.values_of("ARGS").unwrap_or_default().collect();
                     omni_node::run(&args);
+                    process::exit(0);
+                }
+                "polkadot-sdk" => {
+                    let args: Vec<&str> = matches.values_of("ARGS").unwrap_or_default().collect();
+                    polkadot_sdk::run(&args);
                     process::exit(0);
                 }
                 _ => {

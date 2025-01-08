@@ -46,6 +46,7 @@ pub fn run(args: &[&str]) {
     // Define the path where the repository was cloned
     let repo_path = Path::new("./dependencies/zombienet/");
     println!("args: {:?}", args);
+    
     // Example run logic: run the built node with arguments
     let status = Command::new(repo_path.join("target/release/zombienet-template-node"))
         .args(args)
