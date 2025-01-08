@@ -1,3 +1,13 @@
+# Prepare the project
+
+For windows wsl2 install .sh file might need dos2unix format
+install
+```bash
+$ sudo apt-get install dos2unix
+``` 
+
+
+
 # Build the project
 ```bash
 cargo build --release
@@ -27,7 +37,11 @@ a binary file will be generated under nodes/polkadot-omni-node
 $ dot add omni-node
 ```
 
-To configure your omni node you must specify you chan spec in script/omni-node.sh
+To configure your omni node you must specify your chan spec in script/omni-node.sh
+For windows: ```sh /bin/bash^M: bad interpreter: No such file or directory``` is encountered run the following command to remove the ^M
+```bash
+$ dos2unix ./script/omni-node.sh
+```
 
 # Start the omni-node
 ```bash
