@@ -1,7 +1,6 @@
 # Prepare the project
 
 For windows wsl2 .sh file might need dos2unix format
-install
 ```bash
 $ sudo apt-get install dos2unix
 ``` 
