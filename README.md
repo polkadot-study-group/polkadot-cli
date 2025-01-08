@@ -24,7 +24,7 @@ $ dot run solochain
 This will check if polkadot-sdk is available in your directory and build the omni-node template.
 a binary file will be generated under nodes/polkadot-omni-node
 ```bash
-$ dot install omni-node
+$ dot add omni-node
 ```
 
 To configure your omni node you must specify you chan spec in script/omni-node.sh

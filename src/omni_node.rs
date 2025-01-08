@@ -39,20 +39,30 @@ pub fn add(_template: &str) {
                 println!("Exiting...");
                 return;
             }
+
+            // Build the omni-node
+            let omni_node_path = repo_path.join("cumulus/polkadot-omni-node");
+            let status = Command::new("cargo")
+                .args(&["build", "--release"])
+                .current_dir(&omni_node_path)
+                .status()
+                .expect("Failed to build project");
+
+            if !status.success() {
+                eprintln!("Failed to build project");
+                return;
+            }
         }
     }
 
-    // Build the omni-node
-    let omni_node_path = repo_path.join("cumulus/polkadot-omni-node");
-    let status = Command::new("cargo")
-        .args(&["build", "--release"])
-        .current_dir(&omni_node_path)
-        .status()
-        .expect("Failed to build project");
 
-    if !status.success() {
-        eprintln!("Failed to build project");
-        return;
+    let nodes_dir = Path::new("./nodes");
+    if !nodes_dir.exists() {
+        println!("Creating nodes directory...");
+        if let Err(e) = fs::create_dir_all(nodes_dir) {
+            eprintln!("Failed to create nodes directory: {}", e);
+            return;
+        }
     }
 
     // Move the binary to the desired location

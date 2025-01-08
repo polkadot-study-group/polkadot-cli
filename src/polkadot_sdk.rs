@@ -35,7 +35,7 @@ pub fn install(_template: &str) {
 }
 
 pub fn clone(template: &str) {
-    println!("Installing omni-node with template: {}...", template);
+    println!("Installing polkadot-sdk with template: {}...", template);
 
     // Define the path where the repository will be cloned
     let repo_path = Path::new("./templates/polkadot-sdk");
