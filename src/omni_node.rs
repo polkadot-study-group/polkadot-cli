@@ -15,6 +15,19 @@ pub fn add(_template: &str) {
         // Check if the repository exists
         if repo_path.exists() {
             println!("polkadot-sdk directory already exists. Skipping cloning.");
+
+            // Build the omni-node
+            let omni_node_path = repo_path.join("cumulus/polkadot-omni-node");
+            let status = Command::new("cargo")
+                .args(&["build", "--release"])
+                .current_dir(&omni_node_path)
+                .status()
+                .expect("Failed to build project");
+
+            if !status.success() {
+                eprintln!("Failed to build project");
+                return;
+            }
         }else{
             println!("No existing polkadot-sdk directory found.");
             println!("Would you like to clone the repository? (Y/n)");
@@ -39,20 +52,20 @@ pub fn add(_template: &str) {
                 println!("Exiting...");
                 return;
             }
+
+            // Build the omni-node
+            let omni_node_path = repo_path.join("cumulus/polkadot-omni-node");
+            let status = Command::new("cargo")
+                .args(&["build", "--release"])
+                .current_dir(&omni_node_path)
+                .status()
+                .expect("Failed to build project");
+
+            if !status.success() {
+                eprintln!("Failed to build project");
+                return;
+            }
         }
-    }
-
-    // Build the omni-node
-    let omni_node_path = repo_path.join("cumulus/polkadot-omni-node");
-    let status = Command::new("cargo")
-        .args(&["build", "--release"])
-        .current_dir(&omni_node_path)
-        .status()
-        .expect("Failed to build project");
-
-    if !status.success() {
-        eprintln!("Failed to build project");
-        return;
     }
 
 
@@ -61,7 +74,7 @@ pub fn add(_template: &str) {
         println!("Creating nodes directory...");
         if let Err(e) = fs::create_dir_all(nodes_dir) {
             eprintln!("Failed to create nodes directory: {}", e);
-            return;
+            // return;
         }
     }
 
@@ -71,10 +84,13 @@ pub fn add(_template: &str) {
     println!("Moving binary to: {:?}", destination_path);
     if let Err(e) = fs::rename(&source_path, &destination_path) {
         eprintln!("Failed to move the binary: {}", e);
-        return;
+        // return;
     }
 
     println!("Omni-node installation complete.");
+
+    gen_omni_node_bin(repo_path);
+
 }
 
 pub fn run(args: &[&str]) {
@@ -109,6 +125,71 @@ pub fn run(args: &[&str]) {
     }
 
     println!("Omni-node is now running.");
+}
+
+pub fn gen_omni_node_bin(repo_path: &Path){
+    let wasm_source_path = repo_path.join("./target/release/wbuild/asset-hub-westend-runtime/asset_hub_westend_runtime.compact.compressed.wasm");
+    // Check if the wasm file exists
+    // Check if the wasm file exists
+    if wasm_source_path.exists() {
+        println!("Wasm file already exists: {:?}", wasm_source_path);
+    } else {
+        // Build the project if the wasm file does not exist
+        let status = Command::new("cargo")
+            .args(&["build", "--release", "--package", "asset-hub-westend-runtime"])
+            .current_dir(&repo_path)
+            .status()
+            .expect("Failed to build project");
+
+        if !status.success() {
+            eprintln!("Failed to build project");
+            return;
+        }
+
+        // Check again if the wasm file was created
+        if !wasm_source_path.exists() {
+            eprintln!("Wasm file not found after build: {:?}", wasm_source_path);
+            return;
+        }
+    }
+
+    // Run the chain-spec-builder command
+    let chain_spec_status = Command::new("chain-spec-builder")
+        .args(&[
+            "create",
+            "-t", "development",
+            "--relay-chain", "paseo",
+            "--para-id", "1000",
+            "--runtime", wasm_source_path.to_str().unwrap(),
+            "named-preset", "development"
+        ])
+        .current_dir(&repo_path)
+        .status()
+        .expect("Failed to run chain-spec-builder");
+
+    if !chain_spec_status.success() {
+        eprintln!("Failed to run chain-spec-builder");
+        // return;
+    }
+
+    // Define the path to the chain_spec.json file
+    let chain_spec_source_path = repo_path.join("chain_spec.json");
+    let chain_spec_destination_path = Path::new("./chain-specs/chain_spec.json");
+
+    // Move the chain_spec.json file to the chain-specs directory
+    if chain_spec_source_path.exists() {
+        println!("Moving chain_spec.json to: {:?}", chain_spec_destination_path);
+        if let Err(e) = fs::rename(&chain_spec_source_path, &chain_spec_destination_path) {
+            eprintln!("Failed to move chain_spec.json: {}", e);
+            return;
+        }
+    } else {
+        eprintln!("chain_spec.json not found: {:?}", chain_spec_source_path);
+        return;
+    }
+
+    println!("Omni-node binary and chain spec generated successfully.");
+
 }
 
 #[cfg(test)]
