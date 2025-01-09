@@ -128,18 +128,22 @@ pub fn run(args: &[&str]) {
 }
 
 pub fn gen_omni_node_bin(repo_path: &Path){
-    let wasm_source_path = repo_path.join("./target/release/wbuild/asset-hub-westend-runtime/asset_hub_westend_runtime.compact.compressed.wasm");
+    let wasm_source_path = repo_path.join("target/release/wbuild/asset-hub-westend-runtime/asset_hub_westend_runtime.compact.compressed.wasm");
     // Check if the wasm file exists
     // Check if the wasm file exists
-    if wasm_source_path.exists() {
-        println!("Wasm file already exists: {:?}", wasm_source_path);
-    } else {
+    // if wasm_source_path.exists() {
+    
         // Build the project if the wasm file does not exist
+        // let status = Command::new("cargo")
+        //     .args(&["build", "--release", "--package", "asset-hub-westend-runtime"])
+        //     .current_dir(&repo_path)
+        //     .status()
+        //     .expect("Failed to build project");
         let status = Command::new("cargo")
-            .args(&["build", "--release", "--package", "asset-hub-westend-runtime"])
+            .args(&["install", "--git", "https://github.com/paritytech/polkadot-sdk", "--force", "staging-chain-spec-builder"])
             .current_dir(&repo_path)
             .status()
-            .expect("Failed to build project");
+            .expect("Failed to install project");
 
         if !status.success() {
             eprintln!("Failed to build project");
@@ -151,9 +155,22 @@ pub fn gen_omni_node_bin(repo_path: &Path){
             eprintln!("Wasm file not found after build: {:?}", wasm_source_path);
             return;
         }
-    }
+    // }
 
     // Run the chain-spec-builder command
+    println!("Wasm file already exists: {:?}", wasm_source_path);
+    // Ensure the file has read permissions before proceeding
+    let chmod_status = Command::new("chmod")
+        .args(&["+r", wasm_source_path.to_str().unwrap()])
+        .status()
+        .expect("Failed to run chmod");
+
+    if !chmod_status.success() {
+        eprintln!("Failed to add read permissions to the WASM file");
+        // Return or handle error
+        return;
+    }
+
     let chain_spec_status = Command::new("chain-spec-builder")
         .args(&[
             "create",

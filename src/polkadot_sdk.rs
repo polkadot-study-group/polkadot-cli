@@ -66,6 +66,18 @@ pub fn clone(template: &str) {
                 eprintln!("Failed to clone repository");
                 return;
             }
+
+            let build = Command::new("cargo")
+                .args(&["build", "--release"])
+                .current_dir(repo_path)
+                .status()
+                .expect("Failed to run project");
+
+            if !build.success() {
+                eprintln!("Failed to build repository");
+                return;
+            }
+            
         } else {
             println!("Exiting...");
             return;
