@@ -5,6 +5,7 @@ mod zombienet;
 mod omni_node;
 mod polkadot_sdk;
 mod template;
+mod install;
 
 
 fn main() {
@@ -28,6 +29,16 @@ fn main() {
                         .long("template")
                         .takes_value(true),
                 ),
+        )
+        .subcommand(
+            SubCommand::with_name("generate-chain-spec")
+                .about("Installs a specified chain")
+                .arg(
+                    Arg::with_name("CHAIN")
+                        .help("The name of the chain to install")
+                        .required(false)
+                        .index(1),
+                )
         )
         .subcommand(
             SubCommand::with_name("install")
@@ -70,15 +81,23 @@ fn main() {
                     omni_node::add(template);
                     process::exit(0);
                 }
+                "chain-spec-builder" => {
+                    let template = matches.value_of("template").unwrap_or("default");
+                    omni_node::install_chain_spec_builder(template);
+                    process::exit(0);
+                }
                 _ => {
                     println!("Unknown chain: {}", chain);
                     process::exit(1);
                 }
             }
         }
+    } else if let Some(_matches) = matches.subcommand_matches("generate-chain-spec") {
+        omni_node::gen_chain_spec("default");
+        process::exit(0);
     } else if let Some(_matches) = matches.subcommand_matches("install") {
-        polkadot_sdk::clone("default");
-        polkadot_sdk::install("curl");
+        // polkadot_sdk::clone("default");
+        install::install("default");
         println!("Polkadot-sdk installed.");
         process::exit(0);
     } else if let Some(matches) = matches.subcommand_matches("run") {
@@ -103,6 +122,10 @@ fn main() {
                 "polkadot-sdk" => {
                     let args: Vec<&str> = matches.values_of("ARGS").unwrap_or_default().collect();
                     polkadot_sdk::run(&args);
+                    process::exit(0);
+                }
+                "chain-spec-builder" => {
+                    omni_node::install_chain_spec_builder("default");
                     process::exit(0);
                 }
                 _ => {

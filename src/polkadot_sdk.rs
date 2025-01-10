@@ -85,8 +85,6 @@ pub fn clone(template: &str) {
     }
 }
 
-
-
 pub fn run(_args: &[&str]) {
     println!("Running polkadot-sdk...");
 
