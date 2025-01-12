@@ -87,6 +87,14 @@ pub fn install_chain_spec_builder() -> Result<(), Box<dyn Error>>{
     // Check if the download was successful
     if output.status.success() {
         println!("Download successful: {:?}", destination);
+
+        let destination_str = destination.to_str().expect("Failed to convert path to str");
+
+        let _chmod_status = Command::new("chmod")
+        .args(&["755", destination_str])
+        .status()
+        .expect("Failed to run chmod");
+            
         return Ok(())
     } else {
         return Err(format!(
@@ -127,6 +135,14 @@ pub fn install_omni_node() -> Result<(), Box<dyn Error>> {
     // Check if the download was successful
     if output.status.success() {
         println!("Download successful: {:?}", destination);
+
+        let destination_str = destination.to_str().expect("Failed to convert path to str");
+
+        let _chmod_status = Command::new("chmod")
+        .args(&["755", destination_str])
+        .status()
+        .expect("Failed to run chmod");
+
         return Ok(())
     } else {
         return Err(format!(
