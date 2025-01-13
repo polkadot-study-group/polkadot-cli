@@ -75,7 +75,7 @@ pub fn install_chain_spec_builder() -> Result<(), Box<dyn Error>>{
             return Err(format!("Failed to create 'binaries' directory: {}", e).into());
         }
     }
-    
+
     println!("Downloading...");
     let output = Command::new("wget")
         .arg("-O")
@@ -194,6 +194,7 @@ pub fn run_download_script() -> Result<(), Box<dyn Error>>{
 
 pub fn gen_chain_spec() -> Result<(), Box<dyn Error>>{
     let wasm_source_path =  Path::new("./nodes/asset_hub_westend_runtime.compact.compressed.wasm");
+    let chain_spec_builder_path = Path::new("./binaries/chain-spec-builder");
 
     // Check if the WASM file exists
     if !wasm_source_path.exists() {
@@ -211,12 +212,23 @@ pub fn gen_chain_spec() -> Result<(), Box<dyn Error>>{
         return Err(format!("Failed to add read permissions to the WASM file").into());
     }
 
+    // Add execute permissions to the chain-spec-builder binary
+    let chmod_chain_spec_status = Command::new("chmod")
+        .args(&["+x", chain_spec_builder_path.to_str().unwrap()])
+        .status()
+        .expect("Failed to run chmod on chain-spec-builder");
+
+    if !chmod_chain_spec_status.success() {
+        eprintln!("Failed to add execute permissions to the chain-spec-builder");
+        return Err(format!("Failed to add execute permissions to the chain-spec-builder").into());
+    }
+
     // let chain_spec_status = Command::new("chain-spec-builder")
     let chain_spec_status = Command::new("./binaries/chain-spec-builder")
         .args(&[
             "create",
             "-t", "development",
-            "--relay-chain", "paseo",
+            "--relay-chain", "westend2",
             "--para-id", "1000",
             "--runtime", wasm_source_path.to_str().unwrap(),
             "named-preset", "development"
@@ -225,7 +237,7 @@ pub fn gen_chain_spec() -> Result<(), Box<dyn Error>>{
         .expect("Failed to run chain-spec-builder");
 
     if !chain_spec_status.success() {
-        eprintln!("Failed to run chain-spec-builder");
+        return Err(format!("Failed to run chain-spec-builder").into());
     }
     let _ = move_chain_spec();
     Ok(()) 
