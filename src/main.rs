@@ -1,43 +1,48 @@
 use std::process;
-use clap::{App, Arg, SubCommand, Command};
-use std::env;
+use clap::{App, Command};
 
-mod args;
 mod serve;
 mod template;
 mod install;
+mod os_check;
+mod test;
 
-use args::CliArgs;
-use clap::Parser;
 
 fn main() {
-    let _args = CliArgs::parse();
-    check_operating_system();
+    let os_info = os_check::get_os_info();
+    println!("{}", os_info);
     
     let matches = App::new("polkadot-cli")
         .version("0.1.0")
         .author("Author Name <author@example.com>")
         .about("CLI tool for Polkadot")
+        .usage("dot [SUBCOMMAND] --template [ minimal | solochain | parachain ]")
         .subcommand(
-            SubCommand::with_name("install")
-                .about("Installs the polkadot-sdk")
+            Command::new("install")
+                .about("Install operation does the following:
+- Install polkadot dependencies
+- Get polkadot-omni-node binary
+- Get chain-spec-builder binary
+- Get runtime wasm file
+- Generate chain spec file
+                ")
                 .arg(
-                    Arg::new("template")
+                    clap::Arg::new("template")
                         .help("The template to use for installation")
                         .long("template")
-                        .takes_value(true),
+                        .takes_value(true), // These options are listed here,
                 )
                 .arg(
-                    Arg::new("CHAIN")
+                    clap::Arg::new("chain")
                         .help("Use --template to install and run a template")
                         .required(false)
-                        .index(1),
+                        .index(1), // Adding the possible values,
                 )
                 .arg(
-                    Arg::new("ARGS")
-                        .help("Template available arguments \n
-                        minimal \n
-                        parachain \n
+                    clap::Arg::new("args")
+                        .help("Template available arguments
+                        minimal 
+                        parachain 
                         solochain
                         ")
                         .multiple(true)
@@ -48,7 +53,7 @@ fn main() {
             Command::new("serve")
                 .about("Serve omni-node using westend asset hub runtime")
                 .arg(
-                    Arg::new("CHAIN")
+                    clap::Arg::new("chain")
                         .help("The name of the component to install")
                         .required(false)
                         .index(1),
@@ -67,36 +72,16 @@ fn main() {
     }
 }
 
-fn check_operating_system() {
-    let os = env::consts::OS;
-    match os {
-        "macos" => println!("The operating system is macOS."),
-        "linux" => println!("The operating system is Linux."),
-        "windows" => {
-            if is_wsl() {
-                println!("The operating system is Windows running under WSL2.");
-            } else {
-                println!("The operating system is Windows.");
-            }
-        },
-        _ => println!("Unknown operating system: {}", os),
-    }
-}
-// Function to check if the OS is WSL
-fn is_wsl() -> bool {
-    // Check for the presence of the WSL environment variable
-    std::path::Path::new("/proc/version").exists() && 
-    std::fs::read_to_string("/proc/version").unwrap_or_default().contains("Microsoft")
-}
+
 
 fn handle_install(matches: &clap::ArgMatches) {
     if let Some(template_name) = matches.value_of("template") {
-        let args: Vec<&str> = matches.values_of("ARGS").unwrap_or_default().collect();
+        let args: Vec<&str> = matches.values_of("args").unwrap_or_default().collect();
         template::run_template(&args, template_name);
-    } else if let Some(chain) = matches.value_of("CHAIN") {
+    } else if let Some(chain) = matches.value_of("chain") {
         match chain {
             "minimal" | "parachain" | "solochain" => {
-                let args: Vec<&str> = matches.values_of("ARGS").unwrap_or_default().collect();
+                let args: Vec<&str> = matches.values_of("args").unwrap_or_default().collect();
                 template::run_template(&args, chain);
             }
             _ => {
