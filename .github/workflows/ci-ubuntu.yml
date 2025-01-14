@@ -29,4 +29,13 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-        cargo tarpaulin --out Xml
+        cargo tarpaulin --exclude-files src/main.rs
+        cargo tarpaulin --ignore-tests --out Xml
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: cobertura.xml
+        flags: unittests
+        fail_ci_if_error: true
