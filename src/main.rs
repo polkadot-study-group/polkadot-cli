@@ -9,9 +9,6 @@ mod test;
 
 
 fn main() {
-    let os_info = os_check::get_os_info();
-    println!("{}", os_info);
-    
     let matches = App::new("polkadot-cli")
         .version("0.1.0")
         .author("Author Name <author@example.com>")

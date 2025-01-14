@@ -3,6 +3,7 @@ use std::fs;
 use std::process::Stdio;
 use std::path::{Path, PathBuf};
 use std::error::Error;
+use crate::os_check;
 
 pub fn install(_template: &str){
     let mut results: Vec<(Result<(), Box<dyn Error>>, &str)> = Vec::new();
@@ -56,17 +57,27 @@ pub fn install_polkadot() -> Result<(), Box<dyn Error>>{
     Ok(()) 
 }
 
-pub fn install_chain_spec_builder() -> Result<(), Box<dyn Error>>{
+pub fn install_chain_spec_builder() -> Result<(), Box<dyn Error>> {
     println!("Installing chain-spec-builder");
-    let url = "https://github.com/paritytech/polkadot-sdk/releases/download/polkadot-stable2412/chain-spec-builder";
+
+    // Determine the operating system and set the appropriate URL
+    let os_info = os_check::get_os_info();
+    let url;
+    if os_info.as_str() == "linux" {
+        url = "https://github.com/paritytech/polkadot-sdk/releases/download/polkadot-stable2412/chain-spec-builder";
+    } else if os_info.as_str() == "macos" {
+        url = "https://binary.xode.net/chain-spec-builder";
+    } else {
+        return Err(format!("Unsupported OS: {}", os_info).into());
+    }
 
     // Destination file path
     let destination = Path::new("./binaries/chain-spec-builder");
     if destination.exists() {
         println!("Chain-spec-builder binary is available");
-        return Ok(())
+        return Ok(());
     }
-    
+
     // Check if the 'binaries' directory exists, if not, create it
     let binaries_dir = Path::new("./binaries");
     if !binaries_dir.exists() {
@@ -76,14 +87,14 @@ pub fn install_chain_spec_builder() -> Result<(), Box<dyn Error>>{
         }
     }
 
-    println!("Downloading...");
+    println!("Downloading from {}", url);
     let output = Command::new("wget")
         .arg("-O")
         .arg(destination)
         .arg(url)
         .output()
         .map_err(|e| format!("Failed to execute wget: {}", e))?;
-    
+
     // Check if the download was successful
     if output.status.success() {
         println!("Download successful: {:?}", destination);
@@ -91,30 +102,43 @@ pub fn install_chain_spec_builder() -> Result<(), Box<dyn Error>>{
         let destination_str = destination.to_str().expect("Failed to convert path to str");
 
         let _chmod_status = Command::new("chmod")
-        .args(&["755", destination_str])
-        .status()
-        .expect("Failed to run chmod");
-            
-        return Ok(())
+            .args(&["755", destination_str])
+            .status()
+            .expect("Failed to run chmod");
+
+        return Ok(());
     } else {
         return Err(format!(
             "Download failed with exit code: {:?}",
             output.status.code()
-        ).into());
+        )
+        .into());
     }
 }
 
 
+
 pub fn install_omni_node() -> Result<(), Box<dyn Error>> {
-    let url = "https://github.com/paritytech/polkadot-sdk/releases/download/polkadot-stable2412/polkadot-omni-node";
-    
+    println!("Installing polkadot-omni-node");
+
+    // Determine the operating system and set the appropriate URL
+    let os_info = os_check::get_os_info();
+    let url;
+    if os_info.as_str() == "linux" {
+        url = "https://github.com/paritytech/polkadot-sdk/releases/download/polkadot-stable2412/polkadot-omni-node";
+    } else if os_info.as_str() == "macos" {
+        url = "https://binary.xode.net/polkadot-omni-node";
+    } else {
+        return Err(format!("Unsupported OS: {}", os_info).into());
+}
+
     // Destination file path
     let destination = Path::new("./binaries/polkadot-omni-node");
     if destination.exists() {
         println!("Omni-node binary is available");
-        return Ok(())
+        return Ok(());
     }
-    
+
     // Check if the 'binaries' directory exists, if not, create it
     let binaries_dir = Path::new("./binaries");
     if !binaries_dir.exists() {
@@ -123,15 +147,15 @@ pub fn install_omni_node() -> Result<(), Box<dyn Error>> {
             return Err(format!("Failed to create 'binaries' directory: {}", e).into());
         }
     }
-    
-    println!("Downloading...");
+
+    println!("Downloading from {}", url);
     let output = Command::new("wget")
         .arg("-O")
         .arg(destination)
         .arg(url)
         .output()
         .map_err(|e| format!("Failed to execute wget: {}", e))?;
-    
+
     // Check if the download was successful
     if output.status.success() {
         println!("Download successful: {:?}", destination);
@@ -139,16 +163,17 @@ pub fn install_omni_node() -> Result<(), Box<dyn Error>> {
         let destination_str = destination.to_str().expect("Failed to convert path to str");
 
         let _chmod_status = Command::new("chmod")
-        .args(&["755", destination_str])
-        .status()
-        .expect("Failed to run chmod");
+            .args(&["755", destination_str])
+            .status()
+            .expect("Failed to run chmod");
 
-        return Ok(())
+        return Ok(());
     } else {
         return Err(format!(
             "Download failed with exit code: {:?}",
             output.status.code()
-        ).into());
+        )
+        .into());
     }
 }
 
