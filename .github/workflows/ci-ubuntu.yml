@@ -10,8 +10,12 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest] # Define the operating systems to test on
+        
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
