@@ -38,4 +38,5 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: cobertura.xml
         flags: unittests
+        slug: ArneilPaulPolican/polkadot-cli
         fail_ci_if_error: true
