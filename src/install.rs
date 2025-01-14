@@ -87,7 +87,7 @@ pub fn install_chain_spec_builder() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    println!("Downloading from {}", url);
+    println!("Downloading...");
     let output = Command::new("wget")
         .arg("-O")
         .arg(destination)
@@ -148,7 +148,7 @@ pub fn install_omni_node() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    println!("Downloading from {}", url);
+    println!("Downloading...");
     let output = Command::new("wget")
         .arg("-O")
         .arg(destination)
