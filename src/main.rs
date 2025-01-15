@@ -15,19 +15,13 @@ fn main() {
         .about("CLI tool for Polkadot")
         .usage("dot [SUBCOMMAND] --template [ minimal | solochain | parachain ]")
         .subcommand(
-            Command::new("install")
-                .about("Install operation does the following:
-- Install polkadot dependencies
-- Get polkadot-omni-node binary
-- Get chain-spec-builder binary
-- Get runtime wasm file
-- Generate chain spec file
-                ")
+            SubCommand::with_name("install")
+                .about("Installs the polkadot-sdk")
                 .arg(
                     clap::Arg::new("template")
                         .help("The template to use for installation")
                         .long("template")
-                        .takes_value(true), // These options are listed here,
+                        .takes_value(true),
                 )
                 .arg(
                     clap::Arg::new("chain")
