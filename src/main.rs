@@ -1,5 +1,5 @@
 use std::process;
-use clap::{App, Command};
+use clap::{App, Command, SubCommand};
 
 mod serve;
 mod template;
