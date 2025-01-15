@@ -13,27 +13,13 @@ fn main() {
         .author("Author Name <author@example.com>")
         .about("CLI tool for Polkadot")
         .subcommand(
-            // SubCommand::with_name("install")
-            //     .about("Installs the polkadot-sdk")
-            //     .arg(
-            //         Arg::with_name("CHAIN")
-            //             .help("The name of the component to install")
-            //             .required(false)
-            //             .index(1),
-            //     )
-            //     .arg(
-            //         Arg::with_name("ARGS")
-            //             .help("Arguments to pass to the chain")
-            //             .multiple(true)
-            //             .last(true),
-            //     ),
             SubCommand::with_name("install")
                 .about("Installs the polkadot-sdk")
                 .arg(
                     Arg::with_name("template")
                         .help("The template to use for installation")
                         .long("template")
-                        .takes_value(true), // Indicates that this argument takes a value
+                        .takes_value(true),
                 )
                 .arg(
                     Arg::with_name("CHAIN")
