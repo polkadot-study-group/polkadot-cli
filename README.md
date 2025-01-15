@@ -15,11 +15,11 @@ This command will start the node using omni-node with westend assethub chain-spe
 $ dot serve
 ```
 
-# Sart a template node (Optional)
+# Start a template node (Optional)
 An option to run a template node can also be used
 1. minimal template
 2. parachain template
-3. solocahin template
+3. solochain template
 
 To run a template node ```$ dot install --template {template}```
 This will compile and start the template node in development mode
