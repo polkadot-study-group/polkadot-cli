@@ -15,6 +15,11 @@ This command will start the node using omni-node with westend assethub chain-spe
 $ dot serve
 ```
 
+TO specify a custom chain spec run ``` --chain <chain spec file location> ``` 
+```bash
+$ dot serve --chain ./chain-specs/chain_spec.json
+```
+
 # Start a template node (Optional)
 An option to run a template node can also be used
 1. minimal template

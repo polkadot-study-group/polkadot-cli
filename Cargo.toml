@@ -2,9 +2,11 @@
 name = "polkadot-cli"
 version = "0.1.0"
 edition = "2021"
+description = "Polkadot CLI"
+repository = ""
 
 [dependencies]
-clap = "3.0"
+clap = { version = "4.5.20",  features = ["derive"]  }
 pty = "0.2"
 lazy_static = "1.4"
 
