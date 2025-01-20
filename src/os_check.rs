@@ -3,7 +3,7 @@ use lazy_static::lazy_static;
 use std::sync::Mutex;
 
 lazy_static! {
-    static ref OS_INFO: Mutex<String> = Mutex::new(check_operating_system());
+    pub static ref OS_INFO: Mutex<String> = Mutex::new(check_operating_system());
 }
 
 pub fn get_os_info() -> String {

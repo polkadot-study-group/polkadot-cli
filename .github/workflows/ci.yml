@@ -33,8 +33,7 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-        cargo tarpaulin --exclude-files src/main.rs
-        cargo tarpaulin --ignore-tests --out Xml
+        cargo tarpaulin --exclude-files src/main.rs --ignore-tests --out Xml
         
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5

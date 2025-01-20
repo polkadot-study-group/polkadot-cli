@@ -1,10 +1,16 @@
 {
     "cSpell.words": [
         "assethub",
+        "clippy",
+        "fullpath",
+        "mockall",
         "parachain",
         "polkadot",
+        "prdoc",
+        "rustup",
         "solochain",
         "tlsv",
+        "unittests",
         "westend",
         "zombienet"
     ]

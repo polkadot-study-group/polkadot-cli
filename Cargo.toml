@@ -8,6 +8,12 @@ clap = "3.0"
 pty = "0.2"
 lazy_static = "1.4"
 
+[dev-dependencies]
+mockall = "0.11"
+tempfile = "3.4.0"
+mockito = "0.30"
+tempdir = "0.3"
+
 [[bin]]
 name = "dot"
 path = "src/main.rs"
